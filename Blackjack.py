@@ -217,16 +217,16 @@ class game:
         rematch = []
         for i, player in enumerate(self.player_list):
             player.cards = []
-            ask_rematch = input(player.name + " do you want to play again? Yes or no\n").lower()
-            if ask_rematch == "yes":
-                rematch.append(player)
-            if ask_rematch == "no":
-                break
-            else:
+            while True:
+                ask_rematch = input(player.name + " do you want to play again? Yes or no\n").lower()
+                if ask_rematch == "yes":
+                    rematch.append(player)
+                    break
+                if ask_rematch == "no":
+                    break
                 print("You failed to enter any of the right terms. Enter yes or no")
         self.player_remove = []
         self.player_list = rematch
-        self.player_bets = []
         self.play_game()
 
 
