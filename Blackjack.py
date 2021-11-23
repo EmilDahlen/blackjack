@@ -362,6 +362,10 @@ class game:
                     player.has_had_round = False
                     player.has_got_dealt = False
                     player.game_done = False
+                    self.dealer.has_betted = False
+                    self.dealer.has_had_round = False
+                    self.dealer.has_got_dealt = False
+                    self.dealer.game_done = False
                     self.file.truncate(0)
                     self.file.seek(0)
                     rematch.append(player)
@@ -369,10 +373,6 @@ class game:
                 if ask_rematch == "no":
                     break
                 print("You failed to enter any of the right terms")
-        self.dealer.has_betted = False
-        self.dealer.has_had_round = False
-        self.dealer.has_got_dealt = False
-        self.dealer.game_done = False
         self.player_remove = []
         self.player_list = rematch
         if len(self.player_list) > 0:
