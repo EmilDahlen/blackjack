@@ -28,8 +28,7 @@ def func(string):
 class deck:
 
     def __init__(self):
-        self.cards = list()
-        self.create_deck()
+        self.cards = self.create_deck()
 
      # This function creates a list of 52 tuples that symbolize playing cards
     def create_deck(self):
@@ -55,13 +54,9 @@ class deck:
     def shuffle_deck(self):
         random.shuffle(self.cards)
 
-    def pick_card(self, number_of_cards):
-        active_card = []
-        if number_of_cards != 0:
-            for i in range(number_of_cards):
-                active_card.append(self.cards[i])
-            deck.rotate_deck(self, i + 1)
-            return active_card[0]
+    def pick_card(self, hand):
+        hand.append(self.cards[0])
+        deck.rotate_deck(self, 1)
 
 class player:
 
@@ -124,7 +119,7 @@ class player:
             print("")
 
     def hit(self, game):
-        self.cards.append(game.deck.pick_card(1))
+        game.deck.pick_card(self.cards)
 
     def double(self, game, player_index):
         if game.player_bets[player_index] <= self.money:
@@ -233,7 +228,10 @@ class game:
             str(player.game_done))
         for card in player.cards:
             self.file.write(";" + tuple_to_str(card))
-        self.file.write(";" + str(self.player_bets[i]))
+        if len(self.player_bets) > 0:
+            self.file.write(";" + str(self.player_bets[i]))
+        else:  
+            self.file.write(";" + 0)
 
     def write_state(self):
         self.file.truncate(0)
@@ -367,21 +365,8 @@ class game:
         self.start()
         self.round()
         self.winner()
-        self.dealer.has_betted = False
-        self.dealer.has_had_round = False
-        self.dealer.has_got_dealt = False
-        self.dealer.game_done = False
-        self.file.truncate(0)
-        self.file.seek(0)
-        self.deck.shuffle_deck()
-        self.dealer.cards = []
         rematch = []
         for _, player in enumerate(self.player_list):
-            player.cards = []
-            player.has_betted = False
-            player.has_had_round = False
-            player.has_got_dealt = False
-            player.game_done = False
             while True:
                 if player.money <= 0:
                     break
@@ -392,7 +377,23 @@ class game:
                 if ask_rematch == "no":
                     break
                 print("You failed to enter any of the right terms")
+        for _, player in enumerate(self.player_list):
+            player.cards = []
+            player.has_betted = False
+            player.has_had_round = False
+            player.has_got_dealt = False
+            player.game_done = False
+            self.write_state()
+        self.dealer.has_betted = False
+        self.dealer.has_had_round = False
+        self.dealer.has_got_dealt = False
+        self.dealer.game_done = False
+        self.file.truncate(0)
+        self.file.seek(0)
+        self.deck.shuffle_deck()
+        self.dealer.cards = []
         self.player_remove = []
+        self.write_state()
         self.player_list = rematch
         if len(self.player_list) > 0:
             self.play_game()
