@@ -11,7 +11,6 @@ import os
 
 
 
-
 def str_to_bool(string):
     # converts strings to booleans
 
@@ -44,7 +43,7 @@ def func(string):
         return string.replace("'", "")
     
     ####################################################################
-    ## A class defines objects with atributes, functions and methods  ##
+    ## A class defines objects with attributes, functions and methods  ##
     ####################################################################
     
 class deck:
@@ -92,7 +91,7 @@ class deck:
         deck.rotate_deck(self, 1)
 
 class player:    
-    # player class, has atributes that keep track of its name, cards, money and position in game sequence
+    # player class, has attributes that keep track of its name, cards, money and position in game sequence
     
     def __init__(self, money, name):
         self.name = name
@@ -104,10 +103,10 @@ class player:
         self.has_had_round = False
         self.has_got_dealt = False
         self.game_done = False
-        # atributes to keep track of position in game sequence
+        # attributes to keep track of position in game sequence
 
     def join_game(self, game):
-        # appends self (object) to game atribute player_list, this is so game objects can acess all player objects
+        # appends self (object) to game atribute player_list, this is so game objects can access all player objects
 
         game.player_list.append(self)
         game.player_bets.append(0)
@@ -170,7 +169,7 @@ class player:
         game.deck.pick_card(self.cards)
 
     def double(self, game, player_index):
-        # tries to double bet amount, if succesful, it deals another card aswell, if not ot prints that you dont have enough money to double
+        # tries to double bet amount, if successful, it deals another card aswell, if not ot prints that you dont have enough money to double
 
         if game.player_bets[player_index] <= self.money:
             game.player_bets[player_index] = game.player_bets[player_index] * 2
@@ -208,7 +207,7 @@ class player:
         return card_value
 
 class game:
-    # class game, has atributes such as player_list, player_bets and a dealer-player object
+    # class game, has attributes such as player_list, player_bets and a dealer-player object
     # in this class is where we save and unpack data aswell
 
     fileDir = os.path.dirname(os.path.realpath(__file__))
@@ -246,7 +245,7 @@ class game:
         self.deck = deck()
         self.deck.shuffle_deck()
         self.player_list = list()
-        # player_list is to acess the player objects
+        # player_list is to access the player objects
 
         self.player_bets = list()
         self.player_remove = list()
@@ -276,7 +275,7 @@ class game:
         self.load_game()
 
     def load_game(self):
-        # firtstly splits the save-file by rows (each row represent a player)
+        # firstly splits the save-file by rows (each row represent a player)
         # secondly splits the rows by ";"
         # then restores the data to the correct players attributes
 
@@ -332,7 +331,7 @@ class game:
             self.write_player(player, i)
 
     def add_player_a(self, money, name):
-        # adds player to game, automaticly
+        # adds player to game, automatically
 
         player(money, name).join_game(self)
 
@@ -549,14 +548,14 @@ class game:
 
         if len(self.player_list) > 0:
             self.play_game()
-            
+
         else:
             return
         # if no players are left; end game
 
 
 while True:
-# main function
+# start of the main function
 # asks for load or create
 
     file_manage = input("Enter Load or Create: ").lower()
