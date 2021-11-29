@@ -1,49 +1,70 @@
 import random
 import os
 
+
+    ###############################################################################################################################
+    ### This program is simulation of blackjack with features such as creating and loading game-files, this is done with a specialized dump- and load method ##
+    ### This program uses object oriented programming, that will say, using classes and objects                                                                                                   ##
+    ### Video on object oriented programming in python: https://www.youtube.com/watch?v=ZDa-Z5JzLYM                                                                                 ##
+    ##############################################################################################################################
+
+
+
+
 def str_to_bool(string):
+    # converts strings to booleans
     if string == "True":
         return True
     if string == "False":
         return False
     else:
-        print("str_to_bool ***ERROR***")
+        print("str_to_bool *ERROR*")
 
 def tuple_to_str(tuple):
+    # converts tuple to string
     string = str(tuple)
     string = string.replace("(", "")
     string = string.replace(")", "")
     return string
 
 def str_to_tuple(string):
+    # converts string to tuple
     return tuple(map(func, string.split(', ')))
 
 def func(string):
+    # tries if string can be converted to an integer, otherwise remove comma
     try:
         return int(string)
     except ValueError:
         return string.replace("'", "")
-
-# A class is collection of objects, data and functions. This class is a class that define what a deck of cards is and what functions it can enact
+    
+    #########################################################
+    ### A class defines objects with atributes, functions and methods  ##
+    ########################################################
+    
 class deck:
+    # deck class, stores 52 tuples representing cards, also creates the tuples, aswell as shuffles the list, and can deal a card
 
     def __init__(self):
         self.cards = self.create_deck()
 
-     # This function creates a list of 52 tuples that symbolize playing cards
     def create_deck(self):
+        # creates a list of 52 tuples that represent playing cards
         deck = list()
         card_number = ["2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K", "A"]
         card_value = [2, 3, 4, 5, 6, 7, 8, 9, 10, 10, 10, 10, 11]
         card_suit = ["♡", "♤", "♢", "♧"]
-        for i in card_suit:
+        for suit in card_suit:
             for value, number in zip(card_value, card_number):
-                deck.append((number, i, value)) 
+                # "zip" unpacks two list in a for loop
+                deck.append((number, suit, value)) 
         return deck 
 
     def rotate_deck(self, shift):
+        # rotates the cards list n steps
         net_shift = abs(shift) % len(self.cards)
-        for i in range(net_shift):
+        # if shifts > the list we we take the rest of a divition between the values
+        for _ in range(net_shift):
             if shift > 0:
                 popped = self.cards.pop(len(self.cards) - 1)
                 self.cards.insert(0, popped)
@@ -52,18 +73,23 @@ class deck:
                 self.cards.append(popped)
 
     def shuffle_deck(self):
+        # shuffles cards list
         random.shuffle(self.cards)
 
     def pick_card(self, hand):
+        # appends one card for cards list to the argument list called hand, which is intended to be a player hand
         hand.append(self.cards[0])
         deck.rotate_deck(self, 1)
 
-class player:
-
+class player:    
+    # player class, has atributes that keep track of its name, cards, money and position in game sequence
+    
     def __init__(self, money, name):
         self.name = name
         self.cards = []
         self.money = money
+        
+        # atributes below are to keep track of position in game sequence
         self.is_dealer = False
         self.has_betted = False
         self.has_had_round = False
@@ -71,10 +97,12 @@ class player:
         self.game_done = False
 
     def join_game(self, game):
+        # appends self (object) to game atribute player_list, this is so game objects can acess all player objects
         game.player_list.append(self)
         game.player_bets.append(0)
 
     def put_in_bet(self):
+        # askes player how much they want to bet, if it is more than their balance it askes again and also if the amount can't be converted to an integer
         while True:
             if self.money <= 0:
                 return -1
@@ -91,6 +119,7 @@ class player:
             print("You don't have enough money to bet: " + str(amount))
 
     def show_card(self, card_position):
+        # prints a card with "number" and "suit"
         active_card = self.cards[card_position]
         print('┌───────┐')
         print(f'| {active_card[0]:<2}    |')
@@ -101,6 +130,7 @@ class player:
         print('└───────┘')
 
     def show_cards(self):
+        # prints all cards in a list by appending each card to a list then appending all those lists to another list, then printing the cards on the correct row
         card_visuals = list()
         for card in self.cards:
             card_visual = list()
@@ -119,9 +149,11 @@ class player:
             print("")
 
     def hit(self, game):
+        # deals a card
         game.deck.pick_card(self.cards)
 
     def double(self, game, player_index):
+        # tries to double bet amount, if succesful, it deals another card aswell, if not ot prints that you dont have enough money to double
         if game.player_bets[player_index] <= self.money:
             game.player_bets[player_index] = game.player_bets[player_index] * 2
             self.money -= game.player_bets[player_index]
@@ -131,9 +163,11 @@ class player:
         return False
 
     def get_value(self, card):
+        # gets value for card-tuple
         return card[2]
 
     def count_cards(self):
+        # counts all cards in a cards list and arranges all aces as the optimal value
         card_value = int()
         ace_count = int()
         card_order = self.cards
@@ -144,13 +178,15 @@ class player:
             else:
                 card_value += i[2]
         for i in range(ace_count):
-            if card_value+((ace_count-i)*11)+i > 21:
+            # checks all possible ace-value arrangements till it's below 21
+            if card_value + ((ace_count - i) *11) + i > 21:
                 pass
             else:
                 card_value += ((ace_count-i)*11)+i
         return card_value
 
 class game:
+    # class game, has atributes such as player_list, player_bets and a dealer-player object
     fileDir = os.path.dirname(os.path.realpath(__file__))
 
     def __init__(self, name):
@@ -366,7 +402,7 @@ class game:
         self.round()
         self.winner()
         rematch = []
-        for _, player in enumerate(self.player_list):
+        for player in self.player_list:
             while True:
                 if player.money <= 0:
                     break
@@ -377,7 +413,7 @@ class game:
                 if ask_rematch == "no":
                     break
                 print("You failed to enter any of the right terms")
-        for _, player in enumerate(self.player_list):
+        for player in self.player_list:
             player.cards = []
             player.has_betted = False
             player.has_had_round = False
