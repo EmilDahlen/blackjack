@@ -10,15 +10,16 @@ import copy
     ## This program uses object oriented programming, that will say, using classes and objects                              ##
     ## Video on object oriented programming in python: https://www.youtube.com/watch?v=ZDa-Z5JzLYM                          ##
     ## This program is built to be ran on visual studio code, if not the card visuals may differ                            ##
+    ## Also the program need a folder called "Saved" in the same directory for it too run                                   ##
+    ## See Github page: https://github.com/EmilDahlen/blackjack                                                             ##
     ##########################################################################################################################
 
 
-    
+
     ####################################################################
     ## A class defines objects with attributes, functions and methods ##
     ####################################################################
     
-
 class deck:
     # deck class, stores 52 tuples representing cards, also creates the tuples, aswell as shuffles the list, and can deal a card
 
