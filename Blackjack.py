@@ -15,7 +15,7 @@ import copy
 
     
     ####################################################################
-    ## A class defines objects with attributes, functions and methods  ##
+    ## A class defines objects with attributes, functions and methods ##
     ####################################################################
     
 
