@@ -1,68 +1,56 @@
 import random
 import os
-
-
-    ##########################################################################################################################################################
-    ## This program is simulation of blackjack with features such as creating and loading game-files, this is done with a specialized dump- and load method ##
-    ## This program uses object oriented programming, that will say, using classes and objects                                                              ##
-    ## Video on object oriented programming in python: https://www.youtube.com/watch?v=ZDa-Z5JzLYM                                                          ##
-    ## This program is built to be ran on visual studio code, if not the cards may look weird                                                               ##
-    ##########################################################################################################################################################
+import json
+import copy
 
 
 
-def str_to_bool(string):
-    # converts strings to booleans
+    ##########################################################################################################################
+    ## This program is simulation of blackjack with features such as creating and loading game-files, this is done via JSON ##
+    ## This program uses object oriented programming, that will say, using classes and objects                              ##
+    ## Video on object oriented programming in python: https://www.youtube.com/watch?v=ZDa-Z5JzLYM                          ##
+    ## This program is built to be ran on visual studio code, if not the card visuals may differ                            ##
+    ##########################################################################################################################
 
-    if string == "True":
-        return True
-    if string == "False":
-        return False
-    else:
-        print("str_to_bool *ERROR*")
 
-def tuple_to_str(tuple):
-    # converts tuple to string
-    
-    string = str(tuple)
-    string = string.replace("(", "")
-    string = string.replace(")", "")
-    return string
-
-def str_to_tuple(string):
-    # converts string to tuple
-
-    return tuple(map(func, string.split(', ')))
-
-def func(string):
-    # tries if string can be converted to an integer, otherwise remove comma
-
-    try:
-        return int(string)
-    except ValueError:
-        return string.replace("'", "")
     
     ####################################################################
     ## A class defines objects with attributes, functions and methods  ##
     ####################################################################
     
+
 class deck:
     # deck class, stores 52 tuples representing cards, also creates the tuples, aswell as shuffles the list, and can deal a card
 
     def __init__(self):
         self.cards = self.create_deck()
 
+    def save(self):
+        # copies deck object and returns it as a dictionary
+
+        self_copy = copy.deepcopy(self)
+        return vars(self_copy)
+
+    def load(self, dictionary):
+        # loads object from dictionary
+
+        self.cards = dictionary["cards"]
+
     def create_deck(self):
         # creates a list of 52 tuples that represent playing cards
         
         deck = list()
+
         card_number = ["2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K", "A"]
         card_value = [2, 3, 4, 5, 6, 7, 8, 9, 10, 10, 10, 10, 11]
         card_suit = ["♡", "♤", "♢", "♧"]
 
         for suit in card_suit:
+
             for value, number in zip(card_value, card_number):
+
                 deck.append((number, suit, value)) 
+
         return deck 
         # "zip" unpacks two list in a for loop
 
@@ -70,10 +58,13 @@ class deck:
         # rotates the cards list n steps
 
         net_shift = abs(shift) % len(self.cards)
+
         for _ in range(net_shift):
+
             if shift > 0:
                 popped = self.cards.pop(len(self.cards) - 1)
                 self.cards.insert(0, popped)
+
             if shift < 0:
                 popped = self.cards.pop(0)
                 self.cards.append(popped)
@@ -99,11 +90,32 @@ class player:
         self.money = money
         
         self.is_dealer = False
+
         self.has_betted = False
         self.has_had_round = False
         self.has_got_dealt = False
         self.game_done = False
         # attributes to keep track of position in game sequence
+
+    def load(self, dictionary):
+        # re-installs attributes from save-file
+
+        self.name = dictionary["name"]
+        self.cards = dictionary["cards"]
+        self.money = dictionary["money"]
+        
+        self.is_dealer = dictionary["is_dealer"]
+
+        self.has_betted = dictionary["has_betted"]
+        self.has_had_round = dictionary["has_had_round"]
+        self.has_got_dealt = dictionary["has_got_dealt"]
+        self.game_done = dictionary["game_done"]
+
+    def save(self):
+        # copies player object and returns it as a dictionary
+
+        self_copy = copy.deepcopy(self)
+        return vars(self_copy)
 
     def join_game(self, game):
         # appends self (object) to game atribute player_list, this is so game objects can access all player objects
@@ -115,19 +127,25 @@ class player:
         # asks player how much they want to bet, if it is more than their balance it asks again and also if the amount can't be converted to an integer
 
         while True:
+
             if self.money <= 0:
                 return -1
 
             while True:
+
                 amount = (input(f"{self.name} you have {self.money}\nHow much do you want to bet: "))
+
                 try:
                     amount = int(amount)
                     break
+
                 except:
                     print("*Enter an Integer*")
+
             if amount <= self.money:
                 self.money -= amount
                 return amount
+
             print("You don't have enough money to bet: " + str(amount))
 
     def show_card(self, card_position):
@@ -158,9 +176,12 @@ class player:
             card_visual.append('└───────┘')
 
             card_visuals.append(card_visual)
+
         for i, _ in enumerate(card_visuals[0]):
+
             for j, visual in enumerate(card_visuals):
                 print(visual[i], end=" ")
+
             print("")
 
     def hit(self, game):
@@ -176,6 +197,7 @@ class player:
             self.money -= game.player_bets[player_index]
             self.cards.append(game.deck.pick_card(1))
             return True
+
         print("You don't have enough money to double!")
         return False
 
@@ -189,39 +211,47 @@ class player:
 
         card_value = int()
         ace_count = int()
+
         card_order = self.cards
         card_order.sort(key=self.get_value)
+
         for i in card_order:
+
             if i[0] == "A":
                 ace_count += 1
+
             else:
                 card_value += i[2]
                 
         for i in range(ace_count):
             # checks all possible ace-value arrangements till it's below 21
 
+            if card_value + 11 > 21:
+                return card_value + ace_count
+
             if card_value + ((ace_count - i) *11) + i > 21:
                 pass
+
             else:
                 card_value += ((ace_count-i)*11)+i
+
         return card_value
 
 class game:
     # class game, has attributes such as player_list, player_bets and a dealer-player object
     # in this class is where we save and unpack data aswell
 
-    fileDir = os.path.dirname(os.path.realpath(__file__))
-    # file directory is where the program is located
-
     def __init__(self, name):
         if name != "":
             # checks if game is to be loaded or created
-            # if the game name is an empty string it is to be created
+            # if the game name is an empty string it is to be loaded
 
             self.load(name)
             return
-            
+
+
         while True:
+
             self.name = input("Enter game name: ")
 
             if "." in self.name:
@@ -236,11 +266,9 @@ class game:
 
             else:
                 break
-        self.file_name = os.path.join(self.fileDir, "Saves", self.name)
-        # creates a save-file with the game name as the name
 
-        self.file = open(self.file_name, "w+", encoding = "utf-8")
-        # opens the file in write- and read-mode with an encoder that support unicode characters
+        self.file_name = os.path.join(os.path.dirname(os.path.realpath(__file__)), "Saves", self.name)
+        # creates a save-file with the game name as the name
 
         self.deck = deck()
         self.deck.shuffle_deck()
@@ -249,86 +277,82 @@ class game:
 
         self.player_bets = list()
         self.player_remove = list()
+
         self.dealer = player(0, "Dealer")
         self.dealer.is_dealer = True
+
+        self.add_player_m()
+
         while True:
-            ask_for_player = input("Enter \"add player\" or \"start game\": ").lower()
+            ask_for_player = input("Enter \"add player\" to add another player or enter \"start game\": ").lower()
+
             if ask_for_player == "add player":
                 self.add_player_m()
+
             if ask_for_player == "start game":
                 self.play_game()
                 break
 
+            else:
+                print(f"*FAILED TO ENTER ANY OF THE RIGHT TERMS*")
+
     def load(self, name):
         # used instead of the constructor in case save-file is loaded
-        
-        self.name = name
-        self.file_name = os.path.join(self.fileDir, "Saves", self.name)
-        self.file = open(self.file_name, "r+", encoding="utf-8")
-        self.deck = deck()
-        self.deck.shuffle_deck()
-        self.player_list = list()
-        self.player_bets = list()
-        self.player_remove = list()
-        self.dealer = player(0, "Dealer")
-        self.dealer.is_dealer = True
-        self.load_game()
 
-    def load_game(self):
-        # firstly splits the save-file by rows (each row represent a player)
-        # secondly splits the rows by ";"
-        # then restores the data to the correct players attributes
+        with open(os.path.join(os.path.dirname(os.path.realpath(__file__)), "Saves", name), "r", encoding="utf-8") as save_file:
+            dictionary = json.load(save_file)
 
-        player_save = self.file.read().split("\n")
-        for player in player_save:
-            player_data = player.split(";")
-            player_name = player_data[0]
-            player_money = int(player_data[1])
-            self.add_player_a(player_money, player_name)
-            # restores name and money
+            self.name = dictionary["name"]
+            self.file_name = dictionary["file_name"]
 
-        for i, player in enumerate(self.player_list):
-            data_list = player_save[i]
-            player_data = data_list.split(";")
-            player.has_betted = str_to_bool(player_data[2])
-            player.has_had_round = str_to_bool(player_data[3])
-            player.has_got_dealt = str_to_bool(player_data[4])
-            player.game_done = str_to_bool(player_data[5])
-            # restores the positional booleans that keep track of where in the game the players should be
+            self.deck = deck()
+            self.deck.load(dictionary["deck"])
 
-            self.player_bets[i] = int(player_data[-1])
-            for i in range(len(player_data) - 7):
-                player.cards.append(str_to_tuple(player_data[i + 6]))
-            # restores player bets and player cards
+            self.player_list = list()
+            self.player_bets = dictionary["player_bets"]
+            self.player_remove = dictionary["player_remove"]
 
+            self.dealer = player(0, "dealer")
+            self.dealer.load(dictionary["dealer"])
+
+            for players in dictionary["player_list"]:
+                player_object = player(0, "")
+                player_object.load(players)
+                self.player_list.append(player_object)
+                
         self.play_game()
 
-    def write_player(self, player, i):
-        # writes player attributes and data to a row
+    def save(self):
+        # saves game, deck and all player objects to a file using JSON
 
-        self.file.write(
-            player.name + ";" + 
-            str(player.money) + ";" + 
-            str(player.has_betted) +  ";" + 
-            str(player.has_had_round) + ";" + 
-            str(player.has_got_dealt)+ ";" + 
-            str(player.game_done))
-        for card in player.cards:
-            self.file.write(";" + tuple_to_str(card))
-        if len(self.player_bets) > 0:
-            self.file.write(";" + str(self.player_bets[i]))
-        else:  
-            self.file.write(";" + 0)
+        self_copy = copy.deepcopy(self)
+        game_save = vars(self_copy)
+
+        deck_save = self.deck.save()
+        game_save["deck"] = deck_save
+
+        dealer_save = self.dealer.save()
+        game_save["dealer"] = dealer_save
+
+        player_list = list()
+
+        for player in self.player_list:
+            player_list.append(player.save())
+
+        game_save["player_list"] = player_list
+
+        return game_save
+
 
     def write_state(self):
         # wipes save-file and updates it
+        with open(self.file_name, "w", encoding="utf-8") as save_file:
 
-        self.file.truncate(0)
-        self.file.seek(0)
-        self.write_player(self.dealer, 0)
-        for i, player in enumerate(self.player_list):
-            self.file.write("\n")
-            self.write_player(player, i)
+            save_file.truncate(0)
+            save_file.seek(0)
+
+            json.dump(self.save(), save_file)
+
 
     def add_player_a(self, money, name):
         # adds player to game, automatically
@@ -339,40 +363,44 @@ class game:
     def add_player_m(self):
         # adds player to game, manually
 
-        while True:
-            player_name = input("Enter player name: ")
-            if ";" in player_name:
-                print("Enter a name that doesn't contain a \";\"")
-            else:
-                break
+        player_name = input("Enter player name: ")
 
         while True:
+
                 player_money = input("Enter player balance: ")
+
                 try:
                     player_money = int(player_money)
                     break
+
                 except:
                     print("*Enter an Integer*")
 
         player(player_money,  player_name).join_game(self)
         print(f"Player \"{player_name}\" was added to game \"{self.name}\" and has a balance of: {player_money}")
 
+
     def ask(self, player, player_index):
         # asks player if they want to hit, double or stand
 
         bet = self.player_bets[player_index]
         while True:
+
             answer = input(f"{player.name} your current bet is {bet}. Do you want to hit, double or stand: ").lower()
+
             if answer == "hit":
                 player.hit(self)
                 return False
+
             if answer == "double":
                 availability = player.double(self, player_index)
                 if not availability:
                     pass
                 return False
+
             if answer == "stand":
                 return True
+
             else:
                 print("You failed to enter any of the right terms")
 
@@ -386,14 +414,19 @@ class game:
         # also removes players that are in the player_remove list
 
         for i, player in enumerate(self.player_list):
-            if player.has_betted == True:
+
+            if player.has_betted:
                 break
+            
             bet = player.put_in_bet()
+
             if bet > 0:
                 self.player_bets[i] = bet
+
             else:
                 print(f"{player.name} has insignificant funds")
                 self.player_remove.append(i)
+
             player.has_betted = True
             self.write_state()
         # bets
@@ -407,7 +440,7 @@ class game:
             return
         # remove players
 
-        if self.dealer.has_got_dealt == False:
+        if not self.dealer.has_got_dealt:
             self.dealer.hit(self)
             self.dealer.hit(self)
             self.dealer.has_got_dealt = True
@@ -415,7 +448,7 @@ class game:
         # dealer hit
 
         for player in self.player_list:
-            if player.has_got_dealt == False:
+            if not player.has_got_dealt:
                 player.hit(self)
                 player.hit(self)
                 player.has_got_dealt = True
@@ -429,11 +462,12 @@ class game:
 
         if len(self.dealer.cards) == 0:
             return
+
         print("One of the dealers cards is:")
         self.dealer.show_card(1)
 
         for i, player in enumerate(self.player_list):
-            if player.has_had_round == False:
+            if not player.has_had_round:
                 while True:
 
                     if player.count_cards() == 21:
@@ -455,14 +489,14 @@ class game:
                     player.show_cards()
                     print(f"Your cards sum are: {player.count_cards()}")
 
-                    if self.ask(player, i) == True:
+                    if self.ask(player, i):
                         break
                     # ask player for input
                     
                 player.has_had_round = True
             self.write_state()
 
-        if self.dealer.has_had_round == False:
+        if not self.dealer.has_had_round:
 
             while True:
 
@@ -481,7 +515,7 @@ class game:
 
     def winner(self):
         for i, player in enumerate(self.player_list):
-            if self.dealer.game_done == False:
+            if not self.dealer.game_done:
 
                 if player.count_cards() == self.dealer.count_cards() or player.count_cards() >= 22 and self.dealer.count_cards() >= 22:
                     player.money += self.player_bets[i]
@@ -501,10 +535,30 @@ class game:
         
 
     def play_game(self):
+        # the whole game sequence
+
         self.start()
         self.round()
         self.winner()
         # summary of game sequence
+
+        for player in self.player_list:
+            player.cards = list()
+            player.has_betted = False
+            player.has_had_round = False
+            player.has_got_dealt = False
+            player.game_done = False
+            self.write_state()
+        # resets player attributes
+
+        self.dealer.has_betted = False
+        self.dealer.has_had_round = False
+        self.dealer.has_got_dealt = False
+        self.dealer.game_done = False
+        self.dealer.cards = list()
+        # resets dealer attributes
+
+        self.write_state()
 
         rematch = list()
         for player in self.player_list:
@@ -524,27 +578,10 @@ class game:
                 print("You failed to enter any of the right terms")
         # asks player for rematch
 
-        for player in self.player_list:
-            player.cards = []
-            player.has_betted = False
-            player.has_had_round = False
-            player.has_got_dealt = False
-            player.game_done = False
-            self.write_state()
-        # resets player attributes
-
-        self.dealer.has_betted = False
-        self.dealer.has_had_round = False
-        self.dealer.has_got_dealt = False
-        self.dealer.game_done = False
-        self.file.truncate(0)
-        self.file.seek(0)
         self.deck.shuffle_deck()
         self.dealer.cards = list()
         self.player_remove = list()
-        self.write_state()
         self.player_list = rematch
-        # resets dealer and game attributes
 
         if len(self.player_list) > 0:
             self.play_game()
