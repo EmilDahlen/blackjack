@@ -43,7 +43,7 @@ def func(string):
         return string.replace("'", "")
     
     ####################################################################
-    ## A class defines objects with attributes, functions and methods  ##
+    ## A class defines objects with attributes, functions and methods ##
     ####################################################################
     
 class deck:
