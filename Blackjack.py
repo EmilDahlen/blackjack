@@ -582,6 +582,9 @@ class game:
         self.deck.shuffle_deck()
         self.dealer.cards = list()
         self.player_remove = list()
+
+        self.write_state()
+
         self.player_list = rematch
 
         if len(self.player_list) > 0:
