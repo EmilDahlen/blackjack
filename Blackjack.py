@@ -290,7 +290,7 @@ class game:
             if ask_for_player == "add player":
                 self.add_player_m()
 
-            if ask_for_player == "start game":
+            elif ask_for_player == "start game":
                 self.play_game()
                 break
 
