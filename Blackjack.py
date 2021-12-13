@@ -196,7 +196,7 @@ class player:
         if game.player_bets[player_index] <= self.money:
             game.player_bets[player_index] = game.player_bets[player_index] * 2
             self.money -= game.player_bets[player_index]
-            self.cards.append(game.deck.pick_card(1))
+            game.deck.pick_card(self.cards)
             return True
 
         print("You don't have enough money to double!")
